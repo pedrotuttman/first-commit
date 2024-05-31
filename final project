@@ -1,0 +1,240 @@
+// Definição das classes
+class Pedido {
+    constructor(ID, status, data_do_pedido) {
+        this.ID = ID;
+        this.status = status;
+        this.data_do_pedido = data_do_pedido;
+    }
+}
+
+class Funcionario {
+    constructor(ID, nome_do_usuario, cpf, email, senha) {
+        this.ID = ID;
+        this.nome_do_usuario = nome_do_usuario;
+        this.cpf = cpf;
+        this.email = email;
+        this.senha = senha;
+    }
+}
+
+class Cliente {
+    constructor(ID, nome, data_de_nascimento, cpf, email, senha) {
+        this.ID = ID;
+        this.nome = nome;
+        this.data_de_nascimento = data_de_nascimento;
+        this.cpf = cpf;
+        this.email = email;
+        this.senha = senha;
+    }
+}
+
+class Produto {
+    constructor(ID, data_de_validade, preco, quantidade_no_estoque, nome, descricao) {
+        this.ID = ID;
+        this.data_de_validade = data_de_validade;
+        this.preco = preco;
+        this.quantidade_no_estoque = quantidade_no_estoque;
+        this.nome = nome;
+        this.descricao = descricao;
+    }
+}
+
+class Sistema {
+    constructor() {
+        this.clientes = [];
+        this.funcionarios = [];
+        this.produtos = [];
+        this.pedidos = [];
+        this.clienteLogadoID = null; // ID do cliente logado
+        this.funcionarioLogadoID = null; // ID do funcionário logado
+    }
+
+    // Métodos para Clientes
+    adicionarCliente(cliente) {
+        this.clientes.push(cliente);
+    }
+
+    listarClientes() {
+        return this.clientes.sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+
+    buscarClientePorID(ID) {
+        return this.clientes.find(cliente => cliente.ID === ID);
+    }
+
+    verificarLoginCliente(email, senha) {
+        const cliente = this.clientes.find(cliente => cliente.email === email && cliente.senha === senha);
+        if (cliente) {
+            this.clienteLogadoID = cliente.ID;
+            return true;
+        }
+        return false;
+    }
+
+    logoutCliente() {
+        this.clienteLogadoID = null;
+    }
+
+    // Métodos para Funcionarios
+    adicionarFuncionario(funcionario) {
+        this.funcionarios.push(funcionario);
+    }
+
+    listarFuncionarios() {
+        return this.funcionarios.sort((a, b) => a.nome_do_usuario.localeCompare(b.nome_do_usuario));
+    }
+
+    buscarFuncionarioPorID(ID) {
+        return this.funcionarios.find(funcionario => funcionario.ID === ID);
+    }
+
+    verificarLoginFuncionario(email, senha) {
+        const funcionario = this.funcionarios.find(funcionario => funcionario.email === email && funcionario.senha === senha);
+        if (funcionario) {
+            this.funcionarioLogadoID = funcionario.ID;
+            return true;
+        }
+        return false;
+    }
+
+    logoutFuncionario() {
+        this.funcionarioLogadoID = null;
+    }
+
+    listarClientesAlfabeticamente() {
+        return this.clientes.sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+
+    listarProdutosOrdemAlfabetica() {
+        return this.produtos.sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+
+    listarPedidosOrdemCronologica() {
+        return this.pedidos.sort((a, b) => new Date(a.data_do_pedido) - new Date(b.data_do_pedido));
+    }
+
+    mudarStatusPedido(ID, novoStatus) {
+        const pedido = this.pedidos.find(pedido => pedido.ID === ID);
+        if (pedido) {
+            pedido.status = novoStatus;
+            return true;
+        }
+        return false;
+    }
+
+    // Métodos para Produtos
+    adicionarProduto(produto) {
+        this.produtos.push(produto);
+    }
+
+    editarProduto(ID, novoProduto) {
+        const index = this.produtos.findIndex(produto => produto.ID === ID);
+        if (index !== -1) {
+            this.produtos[index] = novoProduto;
+            return true;
+        }
+        return false;
+    }
+
+    excluirProduto(ID) {
+        const index = this.produtos.findIndex(produto => produto.ID === ID);
+        if (index !== -1) {
+            this.produtos.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
+}
+
+// Função para iniciar o sistema
+function iniciarSistema() {
+    const sistema = new Sistema();
+
+    while (true) {
+        if (!sistema.funcionarioLogadoID) {
+            const escolhaPrincipal = prompt("Escolha uma opção:\n1. Login\n2. Sair");
+
+            if (escolhaPrincipal === '1') {
+                const email = prompt("Digite seu email:");
+                const senha = prompt("Digite sua senha:");
+
+                const loginValido = sistema.verificarLoginFuncionario(email, senha);
+                if (loginValido) {
+                    alert("Login de funcionário bem-sucedido!");
+                } else {
+                    alert("Email ou senha inválidos para funcionário.");
+                }
+            } else if (escolhaPrincipal === '2') {
+                alert("Saindo do sistema...");
+                break;
+            } else {
+                alert("Opção inválida.");
+            }
+        } else {
+            const escolhaFuncionario = prompt("Escolha uma opção:\n1. Ver lista de clientes\n2. Ver lista de produtos\n3. Ver lista de pedidos\n4. Mudar status do pedido\n5. Adicionar produto\n6. Editar produto\n7. Excluir produto\n8. Sair");
+
+            switch (escolhaFuncionario) {
+                case '1':
+                    const clientes = sistema.listarClientes();
+                    alert("Lista de clientes:\n" + clientes.map(cliente => `${cliente.nome} - ${cliente.email}`).join("\n"));
+                    break;
+                case '2':
+                    const produtos = sistema.listarProdutosOrdemAlfabetica();
+                    alert("Lista de produtos:\n" + produtos.map(produto => `${produto.nome} - ${produto.preco}`).join("\n"));
+                    break;
+                case '3':
+                    const pedidos = sistema.listarPedidosOrdemCronologica();
+                    alert("Lista de pedidos:\n" + pedidos.map(pedido => `${pedido.ID} - ${pedido.status} - ${pedido.data_do_pedido}`).join("\n"));
+                    break;
+                case '4':
+                    const pedidoID = prompt("Digite o ID do pedido:");
+                    const novoStatus = prompt("Digite o novo status do pedido:");
+                    const statusAlterado = sistema.mudarStatusPedido(pedidoID, novoStatus);
+                    if (statusAlterado) {
+                        alert("Status do pedido alterado com sucesso!");
+                    } else {
+                        alert("Pedido não encontrado.");
+                    }
+                    break;
+                case '5':
+                    const nomeProduto = prompt("Digite o nome do produto:");
+                    const precoProduto = parseFloat(prompt("Digite o preço do produto:"));
+                    const novoProduto = new Produto(Date.now(), null, precoProduto, 0, nomeProduto, "");
+                    sistema.adicionarProduto(novoProduto);
+                    alert("Produto adicionado com sucesso!");
+                    break;
+                case '6':
+                    const editarProdutoID = prompt("Digite o ID do produto a ser editado:");
+                    const nomeEditado = prompt("Digite o novo nome do produto:");
+                    const precoEditado = parseFloat(prompt("Digite o novo preço do produto:"));
+                    const produtoEditado = new Produto(editarProdutoID, null, precoEditado, 0, nomeEditado, "");
+                    const produtoEditadoSucesso = sistema.editarProduto(editarProdutoID, produtoEditado);
+                    if (produtoEditadoSucesso) {
+                        alert("Produto editado com sucesso!");
+                    } else {
+                        alert("Produto não encontrado.");
+                    }
+                    break;
+                case '7':
+                    const excluirProdutoID = prompt("Digite o ID do produto a ser excluído:");
+                    const produtoExcluido = sistema.excluirProduto(excluirProdutoID);
+                    if (produtoExcluido) {
+                        alert("Produto excluído com sucesso!");
+                    } else {
+                        alert("Produto não encontrado.");
+                    }
+                    break;
+                case '8':
+                    sistema.logoutFuncionario();
+                    alert("Logout realizado com sucesso!");
+                    break;
+                default:
+                    alert("Opção inválida.");
+                    break;
+            }
+        }
+    }
+}
+
+// Inicializar o sistema
+iniciarSistema();
